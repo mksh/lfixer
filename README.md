@@ -37,7 +37,7 @@ Usage with custom log fixer function
 By default, a `json_fixer` function from `lfixer.broken_json` module of `lfixer` package is used.
 
 It is easy to write custom fixer function, which should take single required parameter,
-and may be referenced using `--fixer-function` parameter, like:
+and may be referenced using `--fixer-function` script argument, like:
 
 ```
 log-fixer.py Logs-In-Dir/ Logs-Out-Dir/  --fixer-function=package.module.function_name

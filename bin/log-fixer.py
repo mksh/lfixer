@@ -162,7 +162,7 @@ class LoggingPipe:
         self._read_progress(self.progress_db.cursor())
 
         for (file_dict, mode) in [
-                    (self.in_files, 'rb'), (self.out_files, 'wb+')
+                    (self.in_files, 'rb'), (self.out_files, 'ab+')
                 ]:
             for path in file_dict.keys():
                 try:

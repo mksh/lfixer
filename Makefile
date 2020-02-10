@@ -17,8 +17,8 @@ docker:
 	docker build -t lfixer -f Dockerfile .
 
 flake:
-	flake8 bin/
-	flake8 lfixer/
+	python3 -m flake8 bin/
+	python3 -m flake8 lfixer/
 
 test:
 	python3 setup.py test

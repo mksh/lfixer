@@ -10,9 +10,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Test in docker
-        run: make test_docker
       - name: Install flakes
         run: python3 -m pip install --user flake8
       - name: Test code style
         run: make flake
+      - name: Test in docker
+        run: make test_docker

@@ -111,7 +111,7 @@ class LFixerIntegrationTestCase(unittest.TestCase):
         threading.Thread(
             target=functools.partial(self.call_lfixer,
                                      '--progress-fsync=1',
-                                     '--log-fsync=1')).run()
+                                     '--log-fsync=1')).start()
 
         for event in i.event_gen(yield_nones=False):
             # Wait until first file has been written.

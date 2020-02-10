@@ -1,5 +1,5 @@
 import re
-from distutils.core import setup
+from setuptools import setup
 
 
 with open('lfixer/__init__.py') as fl:
@@ -17,4 +17,5 @@ setup(name='lfixer',
       include_package_data=True,
       url='https://github.com/mksh/lfixer',
       scripts=['bin/log-fixer-healthcheck.sh', 'bin/log-fixer.py'],
+      test_suite='lfixer.test',
       packages=['lfixer',])

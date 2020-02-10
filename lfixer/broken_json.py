@@ -15,7 +15,7 @@ import re
 
 
 logger = logging.getLogger(__name__)
-json_extract_re = re.compile(rb'^(.+?)\{(.+)\}(.+?)$')
+json_extract_re = re.compile(rb'^(.+?)\{(.+)\}(.?)$')
 
 
 def json_fixer(line, iteration=0):
@@ -34,7 +34,7 @@ def json_fixer(line, iteration=0):
             json_extracted = json_extract_re.search(line)
             if json_extracted:
                 ret = json_fixer(
-                    b'{' + json_extracted.groups()[1] + b'}',
+                    b'{' + json_extracted.groups()[1] + b'}\n',
                     iteration=1,
                 )
         elif iteration == 1:

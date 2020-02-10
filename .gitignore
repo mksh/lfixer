@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 out/
 .lfixer.db
+lfixer.egg-info/

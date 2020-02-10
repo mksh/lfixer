@@ -4,6 +4,7 @@
 There are no dependencies apart from standard Python3 library.
 """
 import argparse
+import atexit
 import collections
 import itertools
 import logging
@@ -32,6 +33,9 @@ arg_parser.add_argument('--progress-fsync', default=100, type=int,
                         help='How often to fsync progress into SQLite db.')
 arg_parser.add_argument('--log-fsync', default=100, type=int,
                         help='How often to fsync logs into output directory.')
+arg_parser.add_argument('--overwrite', action='store_true', help='Whether to overwrite result files.')
+arg_parser.add_argument('--clean', action='store_true', help='Whether to clean database before running.')
+
 
 
 class LoggingPipe:
@@ -41,7 +45,8 @@ class LoggingPipe:
     """
 
     def __init__(self, in_file_paths, out_file_paths,
-                 progress_db_location, progress_fsync=100, log_fsync=100):
+                 progress_db_location, progress_fsync=100, log_fsync=100,
+                 overwrite=False):
         """Initialize given logging pipe.
 
         Make sure in_file_path and out_file_path do contain
@@ -61,6 +66,9 @@ class LoggingPipe:
 
         :param log_fsync: Number of iterations before log file flush.
         :type log_fsync: int
+
+        :param overwrite: Whether to overwrite file or not.
+        :type overwrite: bool
         """
         self.progress_fsync = progress_fsync
         self.log_fsync = log_fsync
@@ -85,6 +93,8 @@ class LoggingPipe:
         self.iteration = 0
         self.progress_db_location = progress_db_location
         self.progress_db = None
+
+        self.overwrite = overwrite
 
     @staticmethod
     def _remove_index_from_list(l, idx_to_remove):
@@ -162,7 +172,8 @@ class LoggingPipe:
         self._read_progress(self.progress_db.cursor())
 
         for (file_dict, mode) in [
-                    (self.in_files, 'rb'), (self.out_files, 'ab+')
+                    (self.in_files, 'rb'),
+                    (self.out_files, 'wb+' if self.overwrite else 'ab+'),
                 ]:
             for path in file_dict.keys():
                 try:
@@ -247,7 +258,7 @@ class LoggingPipe:
         self._fsync_logs()
 
 
-def process_log_file_buffer(args, directories, fixer_fn, fbuf):
+def process_log_file_buffer(args, directories, fixer_fn, db_location, fbuf):
     """Process file log buffer: all files in set."""
     input_files = []
     output_files = []
@@ -256,15 +267,16 @@ def process_log_file_buffer(args, directories, fixer_fn, fbuf):
         output_files.append(
             file_path.replace(directories['input'], directories['output'])
         )
-    db_location = os.path.expanduser(args.progress_db_location)
     with LoggingPipe(input_files, output_files,
-                     db_location, args.progress_fsync) as pipe:
+                     db_location, args.progress_fsync,
+                     args.log_fsync,
+                     overwrite=args.overwrite) as pipe:
         pipe.process(fixer_fn)
 
     fbuf.clear()
 
 
-def process_log_directory(args, directories, fixer_fn):
+def process_log_directory(args, directories, fixer_fn, db_location):
     # Iterate over files. Process (fix) --parallels files at once.
     fbuf = set()
     for dpath, dirs, files in os.walk(directories['input']):
@@ -275,10 +287,10 @@ def process_log_directory(args, directories, fixer_fn):
             fbuf.add(os.path.join(dpath, fname))
 
             if len(fbuf) == args.parallels:
-                process_log_file_buffer(args, directories, fixer_fn, fbuf)
+                process_log_file_buffer(args, directories, fixer_fn, db_location, fbuf)
 
     if fbuf:
-        process_log_file_buffer(args, directories, fixer_fn, fbuf)
+        process_log_file_buffer(args, directories, fixer_fn, db_location, fbuf)
 
 
 def main():
@@ -303,7 +315,7 @@ def main():
                 excode = 4
                 break
             else:
-                os.makedirs(directory_parameter)
+                os.makedirs(directory_parameter, exists_ok=True)
 
         if not directory_parameter.endswith('/'):
             directory_parameter = '{}/'.format(directory_parameter)
@@ -318,7 +330,11 @@ def main():
             excode = 3
         else:
 
-            process_log_directory(args, directories, fixer_fn)
+            db_location = os.path.expanduser(args.progress_db_location)
+            if args.clean:
+                os.unlink(db_location)
+
+            process_log_directory(args, directories, fixer_fn, db_location)
             # We have walked over everything.
             excode = 0
 

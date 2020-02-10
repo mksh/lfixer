@@ -79,6 +79,15 @@ If you want to keep progress on host, make sure to pass `-v some-host-path:/tmp/
 parameter to your docker run command.
 
 
+Run test suite
+--------------
+```python setup.py test```
+
+
+Run test suite in docker
+-------------------------
+`make test_docker`
+
 
 TODO/FIXME
 ----------

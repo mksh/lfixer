@@ -38,12 +38,16 @@ class LFixerIntegrationTestCase(unittest.TestCase):
 
     def call_lfixer(self, *args):
         self.e = threading.Event()
-        self.p = subprocess.Popen([sys.executable,
-                 'bin/log-fixer.py', self._testdatadir, self._testoutdir,
-                 '--progress-db-location={}'.format(self._progress_db_location[1]),
-                 ] + list(args),
-                 stdout=subprocess.PIPE,
-                 stderr=subprocess.PIPE,)
+        self.p = subprocess.Popen([
+                sys.executable,
+                'bin/log-fixer.py', self._testdatadir,
+                self._testoutdir,
+                '--progress-db-location={}'.format(
+                    self._progress_db_location[1]
+                ),
+            ] + list(args),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,)
         self.outs, self.errs = self.p.communicate()
         self.e.set()
         return self.p.returncode
@@ -96,14 +100,18 @@ class LFixerIntegrationTestCase(unittest.TestCase):
             ['{"goodbye": "json"}\n', '{"hello": "json"}\n'] * 2,
         )
 
-    @unittest.skipUnless(inotify,
-        'This test runs only on systems with python3-inotify installed')
+    @unittest.skipUnless(
+        inotify,
+        'This test runs only on systems with '
+        ' python3-inotify installed')
     def test_kill_continue_progress(self):
         i = inotify.adapters.Inotify()
 
         i.add_watch(self._testlogdir)
         threading.Thread(
-            target=functools.partial(self.call_lfixer, '--progress-fsync=1', '--log-fsync=1')).run()
+            target=functools.partial(self.call_lfixer,
+                                     '--progress-fsync=1',
+                                     '--log-fsync=1')).run()
 
         for event in i.event_gen(yield_nones=False):
             # Wait until first file has been written.
@@ -123,13 +131,14 @@ class LFixerIntegrationTestCase(unittest.TestCase):
         )
         self.assert_file_lines_equal(
             'Logs/Logs-09-02-2020',
-            ['{"goodbye": "json"}\n', '{"hello": "json"}\n'] ,
+            ['{"goodbye": "json"}\n', '{"hello": "json"}\n'],
         )
 
 
 if __name__ == '__main__':
     if inotify is None:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--user', 'inotify'])
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install',
+                               '--user', 'inotify'])
         subprocess.check_call([sys.executable, '-m', 'lfixer.test'])
     else:
         unittest.main()

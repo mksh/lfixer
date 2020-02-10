@@ -4,7 +4,6 @@
 There are no dependencies apart from standard Python3 library.
 """
 import argparse
-import atexit
 import collections
 import itertools
 import logging
@@ -33,9 +32,10 @@ arg_parser.add_argument('--progress-fsync', default=100, type=int,
                         help='How often to fsync progress into SQLite db.')
 arg_parser.add_argument('--log-fsync', default=100, type=int,
                         help='How often to fsync logs into output directory.')
-arg_parser.add_argument('--overwrite', action='store_true', help='Whether to overwrite result files.')
-arg_parser.add_argument('--clean', action='store_true', help='Whether to clean database before running.')
-
+arg_parser.add_argument('--overwrite', action='store_true',
+                        help='Whether to overwrite result files.')
+arg_parser.add_argument('--clean', action='store_true',
+                        help='Whether to clean database before running.')
 
 
 class LoggingPipe:
@@ -287,7 +287,8 @@ def process_log_directory(args, directories, fixer_fn, db_location):
             fbuf.add(os.path.join(dpath, fname))
 
             if len(fbuf) == args.parallels:
-                process_log_file_buffer(args, directories, fixer_fn, db_location, fbuf)
+                process_log_file_buffer(args, directories,
+                                        fixer_fn, db_location, fbuf)
 
     if fbuf:
         process_log_file_buffer(args, directories, fixer_fn, db_location, fbuf)

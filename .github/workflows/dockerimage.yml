@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Test lfixer in build docker
 
 on: [push]
 
@@ -10,7 +10,5 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-      - name: Test with make
+      - name: Test in docker
         run: make test_docker

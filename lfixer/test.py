@@ -116,7 +116,7 @@ class LFixerIntegrationTestCase(unittest.TestCase):
         # Run one more time.
         retcode = self.call_lfixer()
         self.assertFalse(retcode)
-        # Output was not written in full
+        # Output was written in full.
         self.assert_file_lines_equal(
             'Logs/Logs-08-02-2020',
             ['{"json": "world"}\n', '{"field": "value"}\n'],

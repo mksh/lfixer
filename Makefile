@@ -1,5 +1,7 @@
 .PHONY: docker
 
+VERSION = $(shell python3 -c "import lfixer;print(lfixer.__version__)")
+
 builddocker:
 	docker build -t lfixer-build-container -f Dockerfile.build .
 
@@ -14,7 +16,7 @@ package:
 
 docker:
 	make deb
-	docker build -t lfixer -f Dockerfile .
+	docker build -t lfixer --build-arg=VERSION="$(VERSION)" -f Dockerfile .
 
 flake:
 	python3 -m flake8 bin/

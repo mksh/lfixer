@@ -5,7 +5,6 @@ from setuptools import setup
 with open('lfixer/__init__.py') as fl:
     makefile_contents = fl.read()
     version_match = re.search(r'__version__ \= \'(.+?)\'\n', makefile_contents)
-    print(version_match.groups())
     version = version_match.group(1)
 
 
